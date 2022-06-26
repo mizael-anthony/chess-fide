@@ -59,20 +59,24 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
             const html_data = result.data
             const $ = cheerio.load(html_data)
 
-            let rank = $(".profile-top-info__block__row__data")[0].children[0]?.data            
-            let nom_prenoms = $(".profile-top-title")[0].children[0].data.replace(/,/g, "")
+            let rang = $(".profile-top-info__block__row__data")[0].children[0]?.data            
+            let nom_prenoms = $(".profile-top-title")[0].children[0].data.replace(/,/g, " ")
+            let standard_elo = parseInt($(".profile-top-rating-data")[0].children[2].data.replace(/\s/g, ""))
+            let rapid_elo = parseInt($(".profile-top-rating-data")[1].children[2].data.replace(/\s/g, ""))
+            let blitz_elo = parseInt($(".profile-top-rating-data")[2].children[2].data.replace(/\s/g, ""))
 
             const [nom, prenoms] = nom_prenoms.split(/\s+(.*)/)
-            const rang_mondial = rank === undefined ? "":rank
+            const rang_mondial = rang === undefined ? "":rang
             const federation = $(".profile-top-info__block__row__data")[1].children[0].data
             const fide_id = $(".profile-top-info__block__row__data")[2].children[0].data
             const annee_de_naissance = parseInt($(".profile-top-info__block__row__data")[3].children[0].data, 10)
             const sexe = $(".profile-top-info__block__row__data")[4].children[0].data
             const titre = $(".profile-top-info__block__row__data")[5].children[0].data
 
-            const elo_standard = $(".profile-top-rating-data")[0].children[2].data.replace(/\s/g, "");
-            const elo_rapide = $(".profile-top-rating-data")[1].children[2].data.replace(/\s/g, "");
-            const elo_blitz = $(".profile-top-rating-data")[2].children[2].data.replace(/\s/g, "");
+
+            const elo_standard = (isNaN(standard_elo)) ? 0:standard_elo
+            const elo_rapide = (isNaN(rapid_elo)) ? 0:rapid_elo
+            const elo_blitz = (isNaN(blitz_elo)) ? 0:blitz_elo
 
             res.json({
                 nom, prenoms,
