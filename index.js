@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(cors())
 
 /**
- * @returns 1 joueur avec info
+ * @returns 1 joueur avec info avec fichier
  */
 
 app.get('/api.chessgasy.file/:chessplayer_name', (req, res) => {
@@ -54,18 +54,37 @@ app.get('/api.chessgasy.file/:chessplayer_name', (req, res) => {
  */
 app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
     let { id_fide } = req.params
-    axios.get(`https://fide-ratings-scraper.herokuapp.com/player/${id_fide}/info`)
-        .then(response => {
-            const chessplayer = {
-                'id_fide': id_fide,
-                'nom_prenoms': response.data.name,
-                'sexe': response.data.sexe,
-                'elo_standard': response.data.standard_elo,
-                'elo_rapide': response.data.rapid_elo,
-                'elo_blitz': response.data.blitz_elo,
-            }
+    axios.get(`https://ratings.fide.com/profile/${id_fide}`)
+        .then(result => {
+            const html_data = result.data
+            const $ = cheerio.load(html_data)
 
-            res.json(chessplayer)
+            let rank = $(".profile-top-info__block__row__data")[0].children[0]?.data            
+
+            const nom_prenoms = $(".profile-top-title")[0].children[0].data.replace(/,/g, "")
+            const rang_mondial = rank === undefined ? "":rank
+            const federation = $(".profile-top-info__block__row__data")[1].children[0].data
+            const fide_id = $(".profile-top-info__block__row__data")[2].children[0].data
+            const annee_de_naissance = parseInt($(".profile-top-info__block__row__data")[3].children[0].data, 10)
+            const sexe = $(".profile-top-info__block__row__data")[4].children[0].data
+            const titre = $(".profile-top-info__block__row__data")[5].children[0].data
+
+            const elo_standard = $(".profile-top-rating-data")[0].children[2].data.replace(/\s/g, "");
+            const elo_rapide = $(".profile-top-rating-data")[1].children[2].data.replace(/\s/g, "");
+            const elo_blitz = $(".profile-top-rating-data")[2].children[2].data.replace(/\s/g, "");
+
+            res.json({
+                nom_prenoms,
+                rang_mondial,
+                federation,
+                fide_id,
+                annee_de_naissance,
+                sexe,
+                titre,
+                elo_standard, elo_rapide, elo_blitz
+            })
+
+
 
         })
         .catch(error => console.log(error))
@@ -77,11 +96,12 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
 /**
  * @returns 1 joueur avec fide id
  * @param nom du joueur
+ * @description mila améliorena 
  */
 app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
     let { chessplayer_name } = req.params
     let { country } = req.params
-    if (chessplayer_name.length < 3) return res.status(404).json({ "détail": "Veuillez saisir 3 caractères au minimum." })
+    if (chessplayer_name.length < 4) return res.json({ "détail": "Veuillez saisir 4 caractères au minimum." })
 
     let chessplayer_list = []
     let chessplayer_list_id_fide = []
@@ -93,10 +113,10 @@ app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
  */
     axios.get(`http://ratings.fide.com/advaction.phtml?idcode=&name=${chessplayer_name}&title=&other_title=&country=${country}&sex=&srating=0&erating=3000&birthday=&radio=name&line=asc`)
         .then(result => {
-            const htmlData = result.data
-            const $ = cheerio.load(htmlData)
+            const html_data = result.data
+            const $ = cheerio.load(html_data)
 
-            $('td a.tur', htmlData).each((index, element) => {
+            $('td a.tur', html_data).each((index, element) => {
                 // Obtenir nom et lien vers profile de joueur
                 let player_name = $(element).text()
                 let profile_link = $(element).attr('href')
