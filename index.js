@@ -60,8 +60,9 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
             const $ = cheerio.load(html_data)
 
             let rank = $(".profile-top-info__block__row__data")[0].children[0]?.data            
+            let nom_prenoms = $(".profile-top-title")[0].children[0].data.replace(/,/g, "")
 
-            const nom_prenoms = $(".profile-top-title")[0].children[0].data.replace(/,/g, "")
+            const [nom, prenoms] = nom_prenoms.split(/\s+(.*)/)
             const rang_mondial = rank === undefined ? "":rank
             const federation = $(".profile-top-info__block__row__data")[1].children[0].data
             const fide_id = $(".profile-top-info__block__row__data")[2].children[0].data
@@ -74,7 +75,7 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
             const elo_blitz = $(".profile-top-rating-data")[2].children[2].data.replace(/\s/g, "");
 
             res.json({
-                nom_prenoms,
+                nom, prenoms,
                 rang_mondial,
                 federation,
                 fide_id,
