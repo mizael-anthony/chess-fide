@@ -20,6 +20,7 @@ app.get('/api.chessgasy.file/:chessplayer_name', (req, res) => {
     let chessplayer_list = []
 
     try {
+        // fichier à télécharger via le site fide et à mettre dans un dossier data au même niveau index.js
         const file = fs.readFileSync('data/players_list.txt', 'utf-8')
 
         const lines = file.split(/\r?\n/)
@@ -59,34 +60,35 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
             const html_data = result.data
             const $ = cheerio.load(html_data)
 
-            let rang = $(".profile-top-info__block__row__data")[0].children[0]?.data            
-            let nom_prenoms = $(".profile-top-title")[0].children[0].data.replace(/,/g, " ")
-            let standard_elo = parseInt($(".profile-top-rating-data")[0].children[2].data.replace(/\s/g, ""))
-            let rapid_elo = parseInt($(".profile-top-rating-data")[1].children[2].data.replace(/\s/g, ""))
-            let blitz_elo = parseInt($(".profile-top-rating-data")[2].children[2].data.replace(/\s/g, ""))
+            let _rang_mondial = $(".profile-top-info__block__row__data")[0].children[0]?.data            
+            let _nom_prenoms = $(".profile-top-title")[0].children[0].data.replace(/,/g, " ")
+            let _elo_standard = parseInt($(".profile-top-rating-data")[0].children[2].data.replace(/\s/g, ""))
+            let _elo_rapide = parseInt($(".profile-top-rating-data")[1].children[2].data.replace(/\s/g, ""))
+            let _elo_blitz = parseInt($(".profile-top-rating-data")[2].children[2].data.replace(/\s/g, ""))
+            let _titre = $(".profile-top-info__block__row__data")[5].children[0].data
 
-            const [nom, prenoms] = nom_prenoms.split(/\s+(.*)/)
-            const rang_mondial = rang === undefined ? "":rang
+            const [nom, prenoms] = _nom_prenoms.split(/\s+(.*)/)
+            const rang_mondial = _rang_mondial === undefined ? "":_rang_mondial
             const federation = $(".profile-top-info__block__row__data")[1].children[0].data
             const fide_id = $(".profile-top-info__block__row__data")[2].children[0].data
             const annee_de_naissance = parseInt($(".profile-top-info__block__row__data")[3].children[0].data, 10)
             const sexe = $(".profile-top-info__block__row__data")[4].children[0].data
-            const titre = $(".profile-top-info__block__row__data")[5].children[0].data
+            const titre = _titre === "None" ? "":_titre
 
 
-            const elo_standard = (isNaN(standard_elo)) ? 0:standard_elo
-            const elo_rapide = (isNaN(rapid_elo)) ? 0:rapid_elo
-            const elo_blitz = (isNaN(blitz_elo)) ? 0:blitz_elo
+            const elo_standard = (isNaN(_elo_standard)) ? 0:_elo_standard
+            const elo_rapide = (isNaN(_elo_rapide)) ? 0:_elo_rapide
+            const elo_blitz = (isNaN(_elo_blitz)) ? 0:_elo_blitz
 
             res.json({
-                nom, prenoms,
-                rang_mondial,
-                federation,
                 fide_id,
+                nom, prenoms,
+                federation,
                 annee_de_naissance,
                 sexe,
                 titre,
-                elo_standard, elo_rapide, elo_blitz
+                elo_standard, elo_rapide, elo_blitz,
+                rang_mondial
             })
 
 
@@ -106,7 +108,7 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
 app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
     let { chessplayer_name } = req.params
     let { country } = req.params
-    if (chessplayer_name.length < 4) return res.json({ "détail": "Veuillez saisir 4 caractères au minimum." })
+    if (chessplayer_name.length < 4) return res.status(404).json({ "détail": "Veuillez saisir 4 caractères au minimum." })
 
     let chessplayer_list = []
     let chessplayer_list_id_fide = []
@@ -150,10 +152,10 @@ app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
 
             //     chessplayer_list.push({
             //         'id_fide': chessplayer_list_id_fide[index_fide],
-            //         'nom_prenoms': chessplayer_info.data.name,
+            //         '_nom_prenoms': chessplayer_info.data.name,
             //         'sexe': chessplayer_info.data.sexe,
-            //         'elo_standard': chessplayer_info.data.standard_elo,
-            //         'elo_rapide': chessplayer_info.data.rapid_elo,
+            //         'elo_standard': chessplayer_info.data._elo_standard,
+            //         'elo_rapide': chessplayer_info.data._elo_rapide,
             //         'elo_blitz': chessplayer_info.data.blitz_elo,
 
             //     })
@@ -164,7 +166,7 @@ app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
                 res.json(chessplayer_list)
             }
             else {
-                res.json({ "détail": "Ce joueur n'existe pas." })
+                res.status(404).json({ "détail": "Ce joueur n'existe pas." })
             }
 
 
