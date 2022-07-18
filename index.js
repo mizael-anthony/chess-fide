@@ -55,6 +55,8 @@ app.get('/api.chessgasy.file/:chessplayer_name', (req, res) => {
  */
 app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
     let { id_fide } = req.params
+    res.header("Access-Control-Allow-Origin", "*")
+
     axios.get(`https://ratings.fide.com/profile/${id_fide}`)
         .then(result => {
             const html_data = result.data
@@ -80,7 +82,6 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
             const elo_rapide = (isNaN(_elo_rapide)) ? 0:_elo_rapide
             const elo_blitz = (isNaN(_elo_blitz)) ? 0:_elo_blitz
 
-            res.header("Access-Control-Allow-Origin", "*")
             res.json({
                 fide_id,
                 nom, prenoms,
@@ -109,6 +110,9 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
 app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
     let { chessplayer_name } = req.params
     let { country } = req.params
+
+    res.header("Access-Control-Allow-Origin", "*")
+
     if (chessplayer_name.length < 4) return res.status(404).json({ "détail": "Veuillez saisir 4 caractères au minimum." })
 
     let chessplayer_list = []
