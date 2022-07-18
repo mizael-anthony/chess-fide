@@ -80,6 +80,7 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
             const elo_rapide = (isNaN(_elo_rapide)) ? 0:_elo_rapide
             const elo_blitz = (isNaN(_elo_blitz)) ? 0:_elo_blitz
 
+            res.header("Access-Control-Allow-Origin", "*")
             res.json({
                 fide_id,
                 nom, prenoms,
