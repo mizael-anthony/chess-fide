@@ -54,12 +54,11 @@ app.get('/api.chessgasy.file/:chessplayer_name', (req, res) => {
  * @returns 1 jouer avec fide info sans id
  * @param id fide
  */
-app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
+app.get('/api.chessgasy.fide/:id_fide', async(req, res) => {
     let { id_fide } = req.params
-    res.header("Access-Control-Allow-Origin", "*")
 
 
-    axios.get(`https://ratings.fide.com/profile/${id_fide}`)
+    await axios.get(`https://ratings.fide.com/profile/${id_fide}`)
         .then(result => {
             const html_data = result.data
             const $ = cheerio.load(html_data)
@@ -109,11 +108,10 @@ app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
  * @param nom du joueur
  * @description mila améliorena 
  */
-app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
+app.get('/api.chessgasy/:chessplayer_name/:country', async(req, res) => {
     let { chessplayer_name } = req.params
     let { country } = req.params
 
-    res.header("Access-Control-Allow-Origin", "*")
 
     if (chessplayer_name.length < 4) return res.status(404).json({ "détail": "Veuillez saisir 4 caractères au minimum." })
 
@@ -125,7 +123,7 @@ app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
     /**
  * @description Récupérer les profiles et nom prénoms des joueurs (MAD uniquement pour l'instant)
  */
-    axios.get(`http://ratings.fide.com/advaction.phtml?idcode=&name=${chessplayer_name}&title=&other_title=&country=${country}&sex=&srating=0&erating=3000&birthday=&radio=name&line=asc`)
+    await axios.get(`http://ratings.fide.com/advaction.phtml?idcode=&name=${chessplayer_name}&title=&other_title=&country=${country}&sex=&srating=0&erating=3000&birthday=&radio=name&line=asc`)
         .then(result => {
             const html_data = result.data
             const $ = cheerio.load(html_data)
