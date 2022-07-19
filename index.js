@@ -11,6 +11,22 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested, Content-Type, Accept Authorization"
+    )
+    if (req.method === "OPTIONS") {
+      res.header(
+        "Access-Control-Allow-Methods",
+        "POST, PUT, PATCH, GET, DELETE"
+      )
+      return res.status(200).json({})
+    }
+    next()
+  })
+
 /**
  * @returns 1 joueur avec info avec fichier
  */
@@ -55,6 +71,7 @@ app.get('/api.chessgasy.file/:chessplayer_name', (req, res) => {
  */
 app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
     let { id_fide } = req.params
+
 
     axios.get(`https://ratings.fide.com/profile/${id_fide}`)
         .then(result => {
