@@ -55,7 +55,6 @@ app.get('/api.chessgasy.file/:chessplayer_name', (req, res) => {
  */
 app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
     let { id_fide } = req.params
-    res.header("Access-Control-Allow-Origin", "*")
 
     axios.get(`https://ratings.fide.com/profile/${id_fide}`)
         .then(result => {
@@ -111,7 +110,6 @@ app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
     let { chessplayer_name } = req.params
     let { country } = req.params
 
-    res.header("Access-Control-Allow-Origin", "*")
 
     if (chessplayer_name.length < 4) return res.status(404).json({ "détail": "Veuillez saisir 4 caractères au minimum." })
 
