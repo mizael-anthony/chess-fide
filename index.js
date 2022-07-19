@@ -11,21 +11,6 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested, Content-Type, Accept Authorization"
-    )
-    if (req.method === "OPTIONS") {
-      res.header(
-        "Access-Control-Allow-Methods",
-        "POST, PUT, PATCH, GET, DELETE"
-      )
-      return res.status(200).json({})
-    }
-    next()
-  })
 
 /**
  * @returns 1 joueur avec info avec fichier
@@ -71,6 +56,7 @@ app.get('/api.chessgasy.file/:chessplayer_name', (req, res) => {
  */
 app.get('/api.chessgasy.fide/:id_fide', (req, res) => {
     let { id_fide } = req.params
+    res.header("Access-Control-Allow-Origin", "*")
 
 
     axios.get(`https://ratings.fide.com/profile/${id_fide}`)
@@ -127,6 +113,7 @@ app.get('/api.chessgasy/:chessplayer_name/:country', (req, res) => {
     let { chessplayer_name } = req.params
     let { country } = req.params
 
+    res.header("Access-Control-Allow-Origin", "*")
 
     if (chessplayer_name.length < 4) return res.status(404).json({ "détail": "Veuillez saisir 4 caractères au minimum." })
 
