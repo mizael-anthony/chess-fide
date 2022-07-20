@@ -113,7 +113,7 @@ app.get('/api.chessgasy/:chessplayer_name/:country', async(req, res) => {
     let { country } = req.params
 
 
-    if (chessplayer_name.length < 4) return res.status(404).json({ "détail": "Veuillez saisir 4 caractères au minimum." })
+    if (chessplayer_name.length < 4) return res.status(400).json({ "détail": "Veuillez saisir 4 caractères au minimum." })
 
     let chessplayer_list = []
     let chessplayer_list_id_fide = []
@@ -171,7 +171,7 @@ app.get('/api.chessgasy/:chessplayer_name/:country', async(req, res) => {
                 res.json(chessplayer_list)
             }
             else {
-                res.status(404).json({ "détail": "Ce joueur n'existe pas." })
+                res.status(400).json({ "détail": "Ce joueur n'existe pas." })
             }
 
 
